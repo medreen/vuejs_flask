@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vue</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -79,9 +86,11 @@
       </form>
 
       <div v-if="alertSuccessShow" class="alert alert-success" role="alert">
+        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
         <span>{{ alertMessagem }}</span>
       </div>
       <div v-if="alertErrorShow" class="alert alert-danger" role="alert">
+        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
         <span>{{ alertMessagem }}</span>
       </div>
 
@@ -157,7 +166,6 @@
         $("#myTable").DataTable();
       });
     </script>
-
     <script>
       new Vue({
         el: "#app",
@@ -167,32 +175,41 @@
           alertMessagem: "",
           alertSuccessShow: false,
           alertErrorShow: false,
+          loader: false,
         },
+
         methods: {
           registerUser() {
             if (this.name == "" || this.location == "") {
               this.alertErrorShow = true;
               this.alertSuccessShow = false;
               this.alertMessagem = "All fields are required.";
-            } else {
-              response = axios
-                .post("http://127.0.0.1:5000/users", {
-                  name: this.name,
-                  location: this.location,
-                })
-                .then((response) => {
-                  console.log(response.data);
-                  this.alertErrorShow = false;
-                  this.alertSuccessShow = true;
-                  this.alertMessagem = "User added successfully.";
-                })
-                .catch((error) => {
-                  console.error("Error registering user.", error);
-                  this.alertErrorShow = true;
-                  this.alertSuccessShow = false;
-                  this.alertMessagem = "sth went wrong";
-                });
+              return;
             }
+
+            this.loader = true;
+
+            axios
+              .post("http://127.0.0.1:5000/users", {
+                name: this.name,
+                location: this.location,
+              })
+
+              .then((response) => {
+                this.alertErrorShow = false;
+                this.alertSuccessShow = true;
+                this.alertMessagem = "User added successfully.";
+              })
+
+              .catch((error) => {
+                this.alertErrorShow = true;
+                this.alertSuccessShow = false;
+                this.alertMessagem = "Something went wrong.";
+              })
+
+              .finally(() => {
+                this.loader = false;
+              });
           },
         },
       });
