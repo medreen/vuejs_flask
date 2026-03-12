@@ -4,13 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vue</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -61,7 +55,7 @@
 
     <!-- form -->
     <div class="container" id="app">
-      <form id="form" name="form" @submit.prevent="registerUser">
+      <form @submit.prevent="registerUser">
         <div class="mb-3">
           <label for="exampleInputLocation" class="form-label">Name</label>
           <input
@@ -80,31 +74,16 @@
             v-model="location"
           />
         </div>
-        <button v-if="" type="submit" class="btn btn-primary">Submit</button>
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
 
-      <div class="alert alert-success" role="alert" v-if="alertSuccessShow">
-        {{alertMessage}}
-        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
+      <div v-if="alertSuccessShow" class="alert alert-success" role="alert">
+        <span>{{ alertMessagem }}</span>
       </div>
-      <div class="alert alert-danger" role="alert" v-if="alertErrorShow">
-        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
-        {{alertMessage}} 
+      <div v-if="alertErrorShow" class="alert alert-danger" role="alert">
+        <span>{{ alertMessagem }}</span>
       </div>
-        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
-      <div>
-        <i v-if="loader" class="fa-solid fa-spinner fa-spin-pulse"></i>
-      </div>
-
-      <!-- <div id="app">
-      <form id="form" name="form" @submit.prevent="registerUser">
-        <label for="name">Name</label>
-        <input type="text" name="" id="name" v-model="name" /><br />
-        <label for="location">Location</label>
-        <input type="text" name="" id="location" v-model="location" /><br />
-        <button type="submit">Submit</button>
-      </form>
-    </div> -->
 
       <div class="my-5">
         <h1>Users</h1>
@@ -185,19 +164,16 @@
         data: {
           name: "",
           location: "",
-          alertMessage: "",
+          alertMessagem: "",
           alertSuccessShow: false,
           alertErrorShow: false,
-          loader: false,
         },
         methods: {
           registerUser() {
-            if (this.name === "" || this.location === "") {
-              this.loader = true;
+            if (this.name == "" || this.location == "") {
               this.alertErrorShow = true;
-              this.loader = false;
-              // this.alertSuccessShow = false
-              this.alertMessage = "All fields are required.";
+              this.alertSuccessShow = false;
+              this.alertMessagem = "All fields are required.";
             } else {
               response = axios
                 .post("http://127.0.0.1:5000/users", {
@@ -205,20 +181,16 @@
                   location: this.location,
                 })
                 .then((response) => {
-                  this.loader = true;
                   console.log(response.data);
                   this.alertErrorShow = false;
-                  this.loader = false;
                   this.alertSuccessShow = true;
-                  this.alertMessage = "User added successfully.";
+                  this.alertMessagem = "User added successfully.";
                 })
                 .catch((error) => {
                   console.error("Error registering user.", error);
-                  this.loader = true;
                   this.alertErrorShow = true;
-                  // this.loader = false;
                   this.alertSuccessShow = false;
-                  this.alertMessage = error;
+                  this.alertMessagem = "sth went wrong";
                 });
             }
           },
