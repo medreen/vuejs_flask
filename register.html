@@ -61,7 +61,7 @@
     </nav>
 
     <!-- form -->
-    <div class="container" id="app">
+    <div class="container" id="register">
       <span
         ><i
           v-if="loader"
@@ -69,32 +69,32 @@
           style="color: rgb(116, 192, 252)"
         ></i
       ></span>
-      <form @submit.prevent="registerUser">
+      <form @submit.prevent="authenticateUser">
         <div class="mb-3">
           <label for="exampleInputName" class="form-label">Name</label>
           <input
             type="text"
             class="form-control"
             id="exampleInputName"
-            v-model="name"
+            v-model="fullName"
           />
         </div>
         <div class="mb-3">
-          <label for="exampleInputName" class="form-label">Location</label>
+          <label for="exampleInputEmail" class="form-label">Email</label>
           <input
-            type="text"
+            type="email"
             class="form-control"
-            id="exampleInputLocation"
-            v-model="location"
+            id="exampleInputEmail"
+            v-model="email"
           />
         </div>
         <div class="mb-3">
-          <label for="exampleInputAge" class="form-label">Age</label>
+          <label for="exampleInputPassword" class="form-label">Password</label>
           <input
-            type="number"
+            type="password"
             class="form-control"
-            id="exampleInputAge"
-            v-model="age"
+            id="exampleInputPassword"
+            v-model="password"
           />
         </div>
         <!-- Submit -->
@@ -112,29 +112,6 @@
       <div v-if="alertErrorShow" class="alert alert-danger" role="alert">
         <span>{{ alertMessagem }}</span>
       </div>
-
-      <div class="my-5">
-        <h1>Employees</h1>
-        <table id="myTable" class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Name</th>
-              <th scope="col">Location</th>
-              <th scope="col">Age</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in users" :key="user.id">
-              <th scope="row">{{ user.id }}</th>
-              <td>{{ user.name }}</td>
-              <td>{{ user.location }}</td>
-              <td>{{ user.age }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <!-- jQuery (required by DataTables) -->
     <!-- <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script> -->
@@ -174,44 +151,42 @@
 
     <script>
       new Vue({
-        el: "#app",
+        el: "#register",
         data: {
-          name: "",
-          location: "",
-          age: "",
+          fullName: "",
+          email: "",
+          password: "",
           alertMessagem: "",
           alertSuccessShow: false,
           alertErrorShow: false,
-          loader: false,
-          users: [],
-          token: "",
-          header: {}
+          loader: false              
         },
+
         methods: {
-          registerUser() {
-            if (this.name == "" || this.location == "" || this.age == "") {
+          authenticateUser() {
+            if (this.fullName == "" || this.email == "" || this.password == "") {
               this.alertErrorShow = true;
               this.alertSuccessShow = false;
               this.alertMessagem = "All fields are required.";
               return;
             }
-            this.loader = true;
-            this.header = {"Authorization" : "Bearer " + this.token}
-            console.log("header is ", this.header)
-            axios
-              .post("http://127.0.0.1:5000/employees", {
-                name: this.name,
-                location: this.location,
-                age: Number(this.age)
-              }, { headers : this.header })
 
+            this.loader = true;
+
+            axios
+              .post("http://127.0.0.1:5000/register", {
+                full_name: this.fullName,
+                email: this.email,
+                password: this.password
+              })
               .then((response) => {
                 this.alertErrorShow = false;
                 this.alertSuccessShow = true;
                 this.alertMessagem = "User added successfully.";
-                setTimeout(() => {
-                  location.reload();
-                }, 1000);
+                console.log(response.data.token)
+                // WE WILL STORE THE TOKEN IN THE BROWSER LOCAL STORAGE FOR INDEX.HTML & others TO USE.
+                localStorage.setItem("token", response.data.token) 
+                window.location.href = "index.html" 
               })
               .catch((error) => {
                 this.alertErrorShow = true;
@@ -221,34 +196,13 @@
               .finally(() => {
                 this.loader = false;
               });
-          },
-          getUsers() {
-            this.header = {"Authorization" : "Bearer " + this.token}
-            console.log("header is ", this.header)
-            axios
-              .get("http://127.0.0.1:5000/employees", { headers : this.header })
-              .then((response) => {
-                console.log(response.data.data);
-                this.users = response.data.data;
-                this.$nextTick(() => {
-                  $("#myTable").DataTable();
-                });
-              })
-              .catch((error) => {
-                this.alertErrorShow = true;
-                this.alertSuccessShow = false;
-                this.alertMessagem = "Something went wrong.";
-              });
-          },
+          },         
         },
-        mounted() {
-          if (localStorage.getItem("token") != null) {
-            this.token = localStorage.getItem("token")
-            this.getUsers()
-          } else {
-            window.location.href = "register.html"
+        mounted(){
+          if (localStorage.getItem("token") != null){
+            window.location.href = "index.html"
           }
-        },
+        }       
       });
     </script>
   </body>
