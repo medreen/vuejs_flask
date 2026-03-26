@@ -223,7 +223,7 @@
               });
           },
           getUsers() {
-            this.header = {"Authorization" : "Bearer " + this.token}
+            this.header = {"Authorization" : "Bearer" + this.token}
             console.log("header is ", this.header)
             axios
               .get("http://127.0.0.1:5000/employees", { headers : this.header })
